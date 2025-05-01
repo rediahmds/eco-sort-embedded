@@ -1,18 +1,22 @@
 #include <Arduino.h>
+#include <ESPAsyncWebServer.h>
+#include <NetWizard.h>
 
-// put function declarations here:
-int myFunction(int, int);
+// rename credentials.example.h to credentials.h and fill in the credentials
+#include <credentials/credentials.h>
 
-void setup() {
-  // put your setup code here, to run once:
-  int result = myFunction(2, 3);
+static AsyncWebServer server(80);
+static NetWizard netWizard(&server);
+
+void setup()
+{
+  netWizard.setStrategy(NetWizardStrategy::NON_BLOCKING);
+  netWizard.autoConnect(AP_NAME, AP_PASSWORD);
+
+  Serial.begin(9600);
 }
 
-void loop() {
-  // put your main code here, to run repeatedly:
-}
-
-// put function definitions here:
-int myFunction(int x, int y) {
-  return x + y;
+void loop()
+{
+  netWizard.loop();
 }
