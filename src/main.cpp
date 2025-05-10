@@ -5,7 +5,7 @@
 
 // rename credentials.example.h to credentials.h and fill in the credentials
 #include <credentials/credentials.h>
-#include "sensors/mq2/methane.h"
+#include <sensors/mq2/methane.h>
 
 static AsyncWebServer server(80);
 static NetWizard netWizard(&server);
