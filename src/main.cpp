@@ -1,28 +1,35 @@
-#include <Arduino.h>
-#include <ESPAsyncWebServer.h>
-#include <NetWizard.h>
-#include <ElegantOTA.h>
-
 // rename credentials.example.h to credentials.h and fill in the credentials
 #include <credentials/credentials.h>
-#include <sensors/mq2/methane.h>
-#include "oled/oled.h"
 
-static AsyncWebServer server(80);
+#include <Arduino.h>
+#include <NetWizard.h>
+#include <ElegantOTA.h>
+#include <WebServer.h>
+#include <BlynkSimpleEsp32.h>
+
+#include <sensors/mq2/methane.h>
+#include <outputs/oled/oled.h>
+#include <outputs/servo/servo.h>
+
+static WebServer server(80);
 static NetWizard netWizard(&server);
+
+int deg = 0;
 
 void setup()
 {
   Serial.begin(9600);
-  oledBegin();
 
   netWizard.autoConnect(AP_NAME, AP_PASSWORD);
-  netWizard.setStrategy(NetWizardStrategy::NON_BLOCKING);
 
   ElegantOTA.setAuth(OTA_USERNAME, OTA_PASSWORD);
   ElegantOTA.begin(&server);
 
   server.begin();
+
+  Blynk.config(BLYNK_AUTH_TOKEN);
+
+  servo.attach(SERVO_PIN);
 }
 
 void loop()
@@ -30,10 +37,16 @@ void loop()
   netWizard.loop();
   ElegantOTA.loop();
 
-  Serial.print("IP Address: ");
-  Serial.println(netWizard.localIP());
+  Blynk.run();
 
-  printMethane();
+  servo.write(45);
 
   delay(1000);
+}
+
+BLYNK_WRITE(V1)
+{
+  deg = param.asInt();
+  servo.write(deg);
+  Serial.println("[BLYNK] V2 value changed");
 }

@@ -1,4 +1,4 @@
-#include "oled/oled.h"
+#include "oled.h"
 
 Adafruit_SSD1306 oled(OLED_WIDTH, OLED_HEIGHT, &Wire, OLED_RESET);
 

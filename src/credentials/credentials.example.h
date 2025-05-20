@@ -9,5 +9,11 @@
     Rename credentials.example.h to credentials.h and fill in the credentials for your WiFi network.
     The credentials are used in the main.cpp file to connect to the WiFi network and to create the access point.
  */
+
+#define BLYNK_PRINT Serial
+#define BLYNK_TEMPLATE_ID "TEMPLATE_ID"
+#define BLYNK_TEMPLATE_NAME "TEMPLATE_NAME"
+#define BLYNK_AUTH_TOKEN "AUTH_TOKEN"
+
 #define AP_NAME "Your AP Name"
 #define AP_PASSWORD "Your AP Password" // Leave empty for open AP

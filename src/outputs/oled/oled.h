@@ -6,10 +6,10 @@
 #include "SPI.h"
 #include "Wire.h"
 
-const int OLED_WIDTH = 128;
-const int OLED_HEIGHT = 64;
-const int OLED_RESET = -1;
-const int OLED_ADDRESS = 0x3D;
+#define OLED_WIDTH 128
+#define OLED_HEIGHT 64
+#define OLED_RESET -1
+#define OLED_ADDRESS 0x3C
 
 extern Adafruit_SSD1306 oled;
 
