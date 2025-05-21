@@ -6,17 +6,26 @@ void lcdInit()
 {
     lcd.begin();
     lcd.backlight();
-
-    lcd.setCursor(0, 0);
-    lcd.print("  EcoSort Embedded  ");
-
-    delay(4000);
-    lcd.clear();
 }
 
 void lcdPrint(const LcdPrintParams &params)
 {
+    if (params.clear)
+    {
+        lcdClear();
+    }
+
     lcd.setCursor(params.column, params.row);
     lcd.print(params.message);
     delay(params.delay);
+
+    if (params.clear)
+    {
+        lcd.clear();
+    }
+}
+
+void lcdClear()
+{
+    lcd.clear();
 }
