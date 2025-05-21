@@ -21,9 +21,7 @@ void setup()
   Serial.begin(9600);
   lcdInit();
 
-  lcdPrint({
-      .message = " Setting up WiFi... ",
-  });
+  lcdPrint({.message = " Setting up WiFi... "});
   netWizard.autoConnect(AP_NAME, AP_PASSWORD);
   const IPAddress ip = netWizard.localIP();
   lcdPrint({
@@ -31,11 +29,7 @@ void setup()
       .delay = 2000,
       .clear = true,
   });
-  lcdPrint({
-      .row = 0,
-      .column = 0,
-      .message = "IP: " + ip.toString(),
-  });
+  lcdPrint({.message = "IP: " + ip.toString()});
 
   ElegantOTA.setAuth(OTA_USERNAME, OTA_PASSWORD);
   ElegantOTA.begin(&server);
