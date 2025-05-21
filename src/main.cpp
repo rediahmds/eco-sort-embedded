@@ -8,7 +8,7 @@
 #include <BlynkSimpleEsp32.h>
 
 #include <sensors/mq2/methane.h>
-#include <outputs/oled/oled.h>
+#include <outputs/lcd/lcd.h>
 #include <outputs/servo/servo.h>
 
 static WebServer server(80);
@@ -21,6 +21,7 @@ void setup()
   Serial.begin(9600);
 
   netWizard.autoConnect(AP_NAME, AP_PASSWORD);
+  const IPAddress ip = netWizard.localIP();
 
   ElegantOTA.setAuth(OTA_USERNAME, OTA_PASSWORD);
   ElegantOTA.begin(&server);
@@ -30,6 +31,15 @@ void setup()
   Blynk.config(BLYNK_AUTH_TOKEN);
 
   servo.attach(SERVO_PIN);
+
+  lcdInit();
+
+  LcdPrintParams ipInfo = {
+      .row = 0,
+      .column = 0,
+      .message = "IP: " + ip.toString(),
+  };
+  lcdPrint(ipInfo);
 }
 
 void loop()
