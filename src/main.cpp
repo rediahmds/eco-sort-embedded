@@ -29,7 +29,7 @@ void setup()
       .delay = 2000,
       .clear = true,
   });
-  lcdPrint({.message = "IP: " + ip.toString()});
+  lcdPrint({.message = "IP : " + ip.toString()});
 
   ElegantOTA.setAuth(OTA_USERNAME, OTA_PASSWORD);
   ElegantOTA.begin(&server);
@@ -48,7 +48,8 @@ void loop()
 
   Blynk.run();
 
-  servo.write(45);
+  const int ch4ADC = readMethane();
+  printMethane(ch4ADC);
 
   delay(1000);
 }
