@@ -12,7 +12,6 @@ A component that controls EcoSort hardwares using ESP32.
 ## Hardware Components
 
 <details>
-
 <summary><h3>Microcontroller: ESP-WROOM-32U</h3></summary>
 
 ![ESP32 Pinout](https://embetronicx.b-cdn.net/wp-content/uploads/2023/11/ESP-WROOM32-38PIN-DEVBOARD.webp)
