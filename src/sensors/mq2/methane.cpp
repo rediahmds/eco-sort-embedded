@@ -6,7 +6,7 @@
 
 int readMethane()
 {
-    int methaneADC = analogRead(SENSOR_METHANE);
+    int methaneADC = analogRead(SENSOR_METHANE_PIN);
     return methaneADC;
 }
 
