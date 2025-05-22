@@ -1,11 +1,21 @@
 #ifndef ULTRASONIC_H
 #define ULTRASONIC_H
 
-#include <NewPing.h>
+#include "NewPing.h"
 
-const int TRIG_PIN = 18;
-const int ECHO_PIN = 5;
+struct BinsLevel
+{
+    int binsNonOrganic;
+    int binsOrganic;
+};
 
-extern NewPing sonar;
+const int SENSOR_TRIG_NONORGANIC_PIN = 32;
+const int SENSOR_ECHO_NONORGANIC_PIN = 33;
+const int MAX_DISTANCE = 100; // centimeters
+
+extern NewPing sonarNonOrganic;
+
+int readLevelBinNonOrganic();
+void printLevels(const BinsLevel &params);
 
 #endif
