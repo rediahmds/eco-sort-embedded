@@ -8,11 +8,12 @@
 #include <BlynkSimpleEsp32.h>
 
 #include <sensors/mq2/methane.h>
+#include <sensors/hcsr/ultrasonic.h>
 #include <outputs/lcd/lcd.h>
 #include <outputs/servo/servo.h>
 
 static WebServer server(80);
-static NetWizard netWizard(&server);
+static NetWizard netMan(&server);
 
 int deg = 0;
 
@@ -22,8 +23,8 @@ void setup()
   lcdInit();
 
   lcdPrint({.message = " Setting up WiFi... "});
-  netWizard.autoConnect(AP_NAME, AP_PASSWORD);
-  const IPAddress ip = netWizard.localIP();
+  netMan.autoConnect(AP_NAME, AP_PASSWORD);
+  const IPAddress ip = netMan.localIP();
   lcdPrint({
       .message = "Connected!",
       .delay = 2000,
@@ -39,11 +40,12 @@ void setup()
   Blynk.config(BLYNK_AUTH_TOKEN);
 
   servo.attach(SERVO_PIN);
+  servo.write(0);
 }
 
 void loop()
 {
-  netWizard.loop();
+  netMan.loop();
   ElegantOTA.loop();
 
   Blynk.run();
@@ -51,7 +53,24 @@ void loop()
   const int ch4ADC = readMethane();
   printMethane(ch4ADC);
 
+  const int binLevelNonOrganic = readLevelBinNonOrganic();
+  printLevels({.binsNonOrganic = binLevelNonOrganic});
+
   delay(1000);
+}
+
+BLYNK_WRITE(V0)
+{
+  String inferenceResult = param.asString();
+
+  if (inferenceResult == "organic")
+  {
+    servo.write(70);
+  }
+  else
+  {
+    servo.write(150);
+  }
 }
 
 BLYNK_WRITE(V1)
