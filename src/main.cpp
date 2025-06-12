@@ -7,9 +7,9 @@
 #include <BlynkSimpleEsp32.h>
 #include <NetWizard.h>
 
-#include <sensors/mq2/methane.h>
 #include <outputs/servo/servo.h>
 
+#include <MQ2.h>
 #include <Bins.h> // ultrasonic
 #include <Lcd.h>
 
@@ -23,10 +23,11 @@ static Bins organicWasteBin(
 static Bins anorganicWasteBin(
     SENSOR_TRIG_ANORGANIC_PIN,
     SENSOR_ECHO_ANORGANIC_PIN);
+static MQ2 methaneSensor(SENSOR_MQ2_PIN);
 
 static LCD lcd(LCD_ADDRESS, LCD_COLUMNS, LCD_ROWS);
 
-const unsigned long blynkInterval = 5000L;
+const unsigned long blynkInterval = 50000L;
 
 int deg = 0;
 int methaneADC = 0;
@@ -35,7 +36,7 @@ float binLevelOrganic = 0;
 
 void sendSensorData();
 
-const bool IoTMode = false;
+const bool IoTMode = true;
 
 void setup()
 {
@@ -73,8 +74,7 @@ void loop()
     timer.run();
   }
 
-  methaneADC = readMethane();
-  printMethane(methaneADC);
+  methaneADC = methaneSensor.readCH4();
 
   lcd.clearRow(1);
   lcd.clearRow(2);
