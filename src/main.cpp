@@ -98,6 +98,16 @@ BLYNK_CONNECTED()
 
   Blynk.virtualWrite(V5, ipv4.toString());
   Blynk.virtualWrite(V6, ssid);
+
+  const bool isServoAttached = servo.attached();
+  if (isServoAttached)
+  {
+    Blynk.virtualWrite(V7, "Attached");
+  }
+  else
+  {
+    Blynk.virtualWrite(V7, "Not Attached");
+  }
 }
 
 BLYNK_WRITE(V0)
