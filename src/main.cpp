@@ -74,14 +74,19 @@ void loop()
     timer.run();
   }
 
-  methaneADC = methaneSensor.readCH4();
-
   lcd.clearRow(1);
+  methaneADC = methaneSensor.readCH4();
+  lcd.printMessageAt(0, 1, "CH4: " + String(methaneADC));
+
   lcd.clearRow(2);
+  lcd.clearRow(3);
   binLevelNonOrganic = anorganicWasteBin.readLevelPercentage();
   binLevelOrganic = organicWasteBin.readLevelPercentage();
   lcd.printMessageAt(0, 2, "O: " + String(binLevelOrganic) + "%");
   lcd.printMessageAt(0, 3, "A: " + String(binLevelNonOrganic) + "%");
+
+  const bool isServoAttached = servo.attached();
+  Serial.println(isServoAttached);
 
   delay(1000);
 }
