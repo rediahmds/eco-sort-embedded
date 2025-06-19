@@ -46,7 +46,7 @@ void setup()
   if (IoTMode)
   {
     lcd.printMessageAt(0, 0, " Setting up WiFi... ");
-    netMan.autoConnect(AP_NAME, AP_PASSWORD);
+    netMan.autoConnect(AP_NAME, "");
 
     ElegantOTA.setAuth(OTA_USERNAME, OTA_PASSWORD);
     ElegantOTA.begin(&server);
