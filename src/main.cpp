@@ -129,6 +129,7 @@ BLYNK_WRITE(V0)
 
 BLYNK_WRITE(V1)
 {
+  servo.attach(SERVO_PIN);
   deg = param.asInt();
   servo.write(deg);
   Serial.println("[BLYNK] V2 value changed");
