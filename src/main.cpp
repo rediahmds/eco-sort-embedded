@@ -133,6 +133,18 @@ BLYNK_WRITE(V1)
   deg = param.asInt();
   servo.write(deg);
   Serial.println("[BLYNK] V2 value changed");
+
+  servo.detach();
+}
+
+BLYNK_WRITE(V8)
+{
+  const bool isResetPressed = param.asInt();
+  if (isResetPressed)
+  {
+    netMan.reset();
+    ESP.restart();
+  }
 }
 
 void sendSensorData()
