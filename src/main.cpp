@@ -7,84 +7,122 @@
 #include <BlynkSimpleEsp32.h>
 #include <NetWizard.h>
 
-#include <sensors/mq2/methane.h>
-#include <sensors/hcsr/ultrasonic.h>
-#include <outputs/lcd/lcd.h>
 #include <outputs/servo/servo.h>
+
+#include <MQ2.h>
+#include <Bins.h> // ultrasonic
+#include <Lcd.h>
 
 static WebServer server(80);
 static BlynkTimer timer;
 static NetWizard netMan(&server);
 
-const unsigned long blynkInterval = 5000L;
+static Bins organicWasteBin(
+    SENSOR_TRIG_ORGANIC_PIN,
+    SENSOR_ECHO_ORGANIC_PIN);
+static Bins anorganicWasteBin(
+    SENSOR_TRIG_ANORGANIC_PIN,
+    SENSOR_ECHO_ANORGANIC_PIN);
+static MQ2 methaneSensor(SENSOR_MQ2_PIN);
+
+static LCD lcd(LCD_ADDRESS, LCD_COLUMNS, LCD_ROWS);
+
+const unsigned long blynkInterval = 50000L;
 
 int deg = 0;
 int methaneADC = 0;
-int binLevelNonOrganic = 0;
-int binLevelOrganic = 0;
+float binLevelNonOrganic = 0;
+float binLevelOrganic = 0;
 
 void sendSensorData();
+
+const bool IoTMode = true;
 
 void setup()
 {
   Serial.begin(9600);
-  lcdInit();
+  lcd.initialize();
 
-  lcdPrint({.message = " Setting up WiFi... "});
-  netMan.autoConnect(AP_NAME, AP_PASSWORD);
-  const IPAddress ip = netMan.localIP();
-  lcdPrint({
-      .message = "Connected!",
-      .delay = 2000,
-      .clear = true,
-  });
-  lcdPrint({.message = "IP : " + ip.toString()});
+  if (IoTMode)
+  {
+    lcd.printMessageAt(0, 0, " Setting up WiFi... ");
+    netMan.autoConnect(AP_NAME, "");
 
-  ElegantOTA.setAuth(OTA_USERNAME, OTA_PASSWORD);
-  ElegantOTA.begin(&server);
+    ElegantOTA.setAuth(OTA_USERNAME, OTA_PASSWORD);
+    ElegantOTA.begin(&server);
 
-  server.begin();
+    server.begin();
 
-  Blynk.config(BLYNK_AUTH_TOKEN);
-  timer.setInterval(blynkInterval, sendSensorData);
+    Blynk.config(BLYNK_AUTH_TOKEN);
+    timer.setInterval(blynkInterval, sendSensorData);
+  }
+
+  lcd.clear();
 
   servo.attach(SERVO_PIN);
-  servo.write(0);
+  servo.write(45);
 }
 
 void loop()
 {
-  ElegantOTA.loop();
-  netMan.loop();
+  if (IoTMode)
+  {
+    ElegantOTA.loop();
+    netMan.loop();
 
-  Blynk.run();
-  timer.run();
+    Blynk.run();
+    timer.run();
+  }
 
-  methaneADC = readMethane();
-  printMethane(methaneADC);
+  lcd.clearRow(1);
+  methaneADC = methaneSensor.readCH4();
+  lcd.printMessageAt(0, 1, "CH4: " + String(methaneADC));
 
-  binLevelNonOrganic = readLevelBinNonOrganic();
-  binLevelOrganic = readLevelBinOrganic();
-  printLevels({
-      .binsNonOrganic = binLevelNonOrganic,
-      .binsOrganic = binLevelOrganic,
-  });
+  lcd.clearRow(2);
+  lcd.clearRow(3);
+  binLevelNonOrganic = anorganicWasteBin.readLevelPercentage();
+  binLevelOrganic = organicWasteBin.readLevelPercentage();
+  lcd.printMessageAt(0, 2, "O: " + String(binLevelOrganic) + "%");
+  lcd.printMessageAt(0, 3, "A: " + String(binLevelNonOrganic) + "%");
+
+  const bool isServoAttached = servo.attached();
+  Serial.println(isServoAttached);
 
   delay(1000);
+}
+
+BLYNK_CONNECTED()
+{
+  const IPAddress ipv4 = netMan.localIP();
+  const char *ssid = netMan.getSSID();
+
+  Blynk.virtualWrite(V5, ipv4.toString());
+  Blynk.virtualWrite(V6, ssid);
+
+  const bool isServoAttached = servo.attached();
+  if (isServoAttached)
+  {
+    Blynk.virtualWrite(V7, "Attached");
+  }
+  else
+  {
+    Blynk.virtualWrite(V7, "Not Attached");
+  }
 }
 
 BLYNK_WRITE(V0)
 {
   String inferenceResult = param.asString();
 
+  lcd.clearRow(3);
   if (inferenceResult == "organic")
   {
-    lcdPrint({.row = 3, .message = "Organic"});
+    lcd.printCentered(3, "Organic");
     servo.write(70);
   }
   else
   {
-    lcdPrint({.row = 3, .message = "Non Organic"});
+    lcd.printCentered(3, "Non-organic");
     servo.write(150);
   }
 }
@@ -94,6 +132,16 @@ BLYNK_WRITE(V1)
   deg = param.asInt();
   servo.write(deg);
   Serial.println("[BLYNK] V2 value changed");
+}
+
+BLYNK_WRITE(V8)
+{
+  const bool isResetPressed = param.asInt();
+  if (isResetPressed)
+  {
+    netMan.reset();
+    ESP.restart();
+  }
 }
 
 void sendSensorData()

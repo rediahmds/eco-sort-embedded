@@ -11,15 +11,17 @@ NewPing sonarOrganic(
     SENSOR_ECHO_ORGANIC_PIN,
     MAX_DISTANCE);
 
-int readLevelBinNonOrganic()
+float readLevelBinNonOrganic()
 {
-    int distance = sonarNonOrganic.ping_cm();
+    const int distance = sonarNonOrganic.ping_cm();
+    const float percentage = calculatePercentage(distance);
     return distance;
 }
 
-int readLevelBinOrganic()
+float readLevelBinOrganic()
 {
-    int distance = sonarOrganic.ping_cm();
+    const int distance = sonarOrganic.ping_cm();
+    const float percentage = calculatePercentage(distance);
     return distance;
 }
 
@@ -30,4 +32,10 @@ void printLevels(const BinsLevel &params)
         .column = 0,
         .message = "O: " + String(params.binsNonOrganic) + " cm | N: " + String(params.binsOrganic) + " cm",
     });
+}
+
+float calculatePercentage(int distance) {
+    const float fillHeight = BIN_HEIGHT - distance;
+    const float percentage = (fillHeight / BIN_HEIGHT) * 100.0f;
+    return percentage;
 }
