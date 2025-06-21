@@ -15,6 +15,7 @@ public:
     void printMessageAt(int col, int row, String message);
     void clearRow(int row);
     void printCentered(int row, String message);
+    void printScrollLeft(int row, String message, int delayms = 200);
 
 private:
     const int _cols;

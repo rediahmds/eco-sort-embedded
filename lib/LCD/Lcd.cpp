@@ -32,3 +32,13 @@ void LCD::printCentered(int row, String message)
     setCursor(padding, row);
     print(message);
 }
+
+void LCD::printScrollLeft(int row, String message, int delayms)
+{
+    printMessageAt(0, row, message);
+    for (int i = 0; i < message.length(); i++)
+    {
+        scrollDisplayLeft();
+        delay(delayms);
+    }
+}
