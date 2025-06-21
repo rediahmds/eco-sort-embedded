@@ -3,6 +3,7 @@
 
 #include <NetWizard.h>
 #include <WebServer.h>
+#include <Lcd.h>
 
 #define DEFAULT_AP_NAME "EcoSort AP"
 #define DEFAULT_AP_PASSWORD ""
@@ -16,8 +17,8 @@ enum class WiFiMode
 class NetMan : public NetWizard
 {
 public:
-    NetMan(String ssid, String password);
-    NetMan(WebServer *server, String APname, String APpassword);
+    NetMan(String ssid, String password, LCD &lcd);
+    NetMan(WebServer *server, String APname, String APpassword, LCD &lcd);
 
     void begin();
 
@@ -26,6 +27,9 @@ private:
     String _ssid;
     String _password;
     WebServer *_server;
+    LCD &_lcd;
+
+    void _connectionStatusCallback(NetWizardConnectionStatus status);
 };
 
 #endif
