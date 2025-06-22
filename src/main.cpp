@@ -36,26 +36,21 @@ float binLevelOrganic = 0;
 
 void sendSensorData();
 
-const bool IoTMode = true;
-
 void setup()
 {
   Serial.begin(9600);
   lcd.initialize();
 
-  if (IoTMode)
-  {
-    lcd.printMessageAt(0, 0, " Setting up WiFi... ");
-    netMan.autoConnect(AP_NAME, "");
+  lcd.printMessageAt(0, 0, " Setting up WiFi... ");
+  netMan.autoConnect(AP_NAME, "");
 
-    ElegantOTA.setAuth(OTA_USERNAME, OTA_PASSWORD);
-    ElegantOTA.begin(&server);
+  ElegantOTA.setAuth(OTA_USERNAME, OTA_PASSWORD);
+  ElegantOTA.begin(&server);
 
-    server.begin();
+  server.begin();
 
-    Blynk.config(BLYNK_AUTH_TOKEN);
-    timer.setInterval(blynkInterval, sendSensorData);
-  }
+  Blynk.config(BLYNK_AUTH_TOKEN);
+  timer.setInterval(blynkInterval, sendSensorData);
 
   lcd.clear();
 
@@ -65,14 +60,11 @@ void setup()
 
 void loop()
 {
-  if (IoTMode)
-  {
-    ElegantOTA.loop();
-    netMan.loop();
+  ElegantOTA.loop();
+  netMan.loop();
 
-    Blynk.run();
-    timer.run();
-  }
+  Blynk.run();
+  timer.run();
 
   lcd.clearRow(1);
   methaneADC = methaneSensor.readCH4();
