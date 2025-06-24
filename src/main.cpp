@@ -43,6 +43,7 @@ void setup()
 
   lcd.printMessageAt(0, 0, " Setting up WiFi... ");
   netMan.autoConnect(AP_NAME, "");
+  // netMan.connect("AP", "Pass"); // Connect to specific AP without opening a portal
 
   ElegantOTA.setAuth(OTA_USERNAME, OTA_PASSWORD);
   ElegantOTA.begin(&server);
