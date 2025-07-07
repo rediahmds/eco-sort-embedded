@@ -6,8 +6,7 @@
 #include <WebServer.h>
 #include <BlynkSimpleEsp32.h>
 #include <NetWizard.h>
-
-#include <outputs/servo/servo.h>
+#include <NetMan.h>
 
 #include <MQ2.h>
 #include <Bins.h> // ultrasonic
@@ -41,9 +40,15 @@ void setup()
   Serial.begin(9600);
   lcd.initialize();
 
-  lcd.printMessageAt(0, 0, " Setting up WiFi... ");
   netMan.autoConnect(AP_NAME, "");
-  // netMan.connect("AP", "Pass"); // Connect to specific AP without opening a portal
+	
+	// Connect to specific AP without opening a portal, input WiFi auth manually
+	// netMan.connect("AP", "Pass");
+
+	netMan.onConnectionStatus([&](NetWizardConnectionStatus status)
+							  { NetMan::handleConnectionChanges(status, lcd); });
+	netMan.onPortalState([&](NetWizardPortalState state)
+						 { NetMan::handlePortalChanges(state, lcd); });
 
   ElegantOTA.setAuth(OTA_USERNAME, OTA_PASSWORD);
   ElegantOTA.begin(&server);
