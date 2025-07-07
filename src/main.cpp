@@ -11,6 +11,7 @@
 #include <MQ2.h>
 #include <Bins.h> // ultrasonic
 #include <Lcd.h>
+#include <ServoPositioner.h>
 
 static WebServer server(80);
 static BlynkTimer timer;
@@ -25,6 +26,7 @@ static Bins anorganicWasteBin(
 static MQ2 methaneSensor(SENSOR_MQ2_PIN);
 
 static LCD lcd(LCD_ADDRESS, LCD_COLUMNS, LCD_ROWS);
+static ServoPositioner servo;
 
 const unsigned long blynkInterval = 50000L;
 
@@ -32,6 +34,7 @@ int deg = 0;
 int methaneADC = 0;
 float binLevelNonOrganic = 0;
 float binLevelOrganic = 0;
+String inferenceResult = "--";
 
 void sendSensorData();
 
@@ -59,9 +62,7 @@ void setup()
   timer.setInterval(blynkInterval, sendSensorData);
 
   lcd.clear();
-
   servo.attach(SERVO_PIN);
-  servo.write(45);
 }
 
 void loop()
@@ -71,6 +72,9 @@ void loop()
 
   Blynk.run();
   timer.run();
+
+	lcd.clearRow(0);
+	lcd.printMessageAt(0, 0, "Result: " + inferenceResult);
 
   lcd.clearRow(1);
   methaneADC = methaneSensor.readCH4();
@@ -82,9 +86,6 @@ void loop()
   binLevelOrganic = organicWasteBin.readLevelPercentage();
   lcd.printMessageAt(0, 2, "O: " + String(binLevelOrganic) + "%");
   lcd.printMessageAt(0, 3, "A: " + String(binLevelNonOrganic) + "%");
-
-  const bool isServoAttached = servo.attached();
-  Serial.println(isServoAttached);
 
   delay(1000);
 }
