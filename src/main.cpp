@@ -28,7 +28,7 @@ static MQ2 methaneSensor(SENSOR_MQ2_PIN);
 static LCD lcd(LCD_ADDRESS, LCD_COLUMNS, LCD_ROWS);
 static ServoPositioner servo;
 
-const unsigned long blynkInterval = 50000L;
+const unsigned long blynkInterval = 50'000;
 
 int deg = 0;
 int methaneADC = 0;
@@ -111,19 +111,22 @@ BLYNK_CONNECTED()
 
 BLYNK_WRITE(V0)
 {
-  String inferenceResult = param.asString();
+	inferenceResult = param.asString();
 
-  lcd.clearRow(3);
   if (inferenceResult == "organic")
   {
-    lcd.printCentered(3, "Organic");
-    servo.write(70);
+		lcd.printMessageAt(0, 9, "Organic");
+		servo.tiltToOrganincBin();
+		delay(300);
   }
   else
   {
-    lcd.printCentered(3, "Non-organic");
-    servo.write(150);
+		lcd.printMessageAt(0, 9, "Non-organic");
+		servo.tiltToAnorganicBin();
+		delay(300);
   }
+
+	servo.toInitialPosition();
 }
 
 BLYNK_WRITE(V1)
