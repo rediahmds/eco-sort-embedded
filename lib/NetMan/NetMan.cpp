@@ -1,119 +1,109 @@
 #include "NetMan.h"
-#include "WiFi.h"
-#include "Lcd.h"
 
-NetMan::NetMan(String ssid, String password, LCD &lcd)
-    : NetWizard(nullptr),
-      _mode(WiFiMode::MANUAL),
-      _ssid(ssid),
-      _password(password),
-      _server(nullptr),
-      _lcd(lcd) {}
-
-NetMan::NetMan(WebServer *server,
-               String APname,
-               String APpassword,
-               LCD &lcd)
-    : NetWizard(server),
-      _mode(WiFiMode::AUTO),
-      _ssid(APname),
-      _password(APpassword),
-      _server(server),
-      _lcd(lcd) {}
-
-void NetMan::begin()
+void NetMan::handleConnectionChanges(NetWizardConnectionStatus status, LCD &lcd)
 {
-    switch (_mode)
-    {
-    case WiFiMode::AUTO:
-    {
-        autoConnect(_ssid.c_str(), _password.c_str());
-        onConnectionStatus([&](NetWizardConnectionStatus status)
-                           {
-            _lcd.clearRow(0);
-            switch (status)
-            {
-            case NetWizardConnectionStatus::DISCONNECTED:
-                {
-                    _lcd.printScrollLeft(0, "WiFi disconnected");
-                    break;
-                }
-            case NetWizardConnectionStatus::CONNECTING:
-            {
-                _lcd.printScrollLeft(0, "WiFi is connecting...");
-                break;
-            }
-            case NetWizardConnectionStatus::CONNECTED:
-            {
-                _lcd.printScrollLeft(0, "WiFi connected successfully");
-                break;
-            }
-            case NetWizardConnectionStatus::CONNECTION_FAILED:
-            {
-                _lcd.printScrollLeft(0, "WiFi connection failed");
-                break;
-            }
-            case NetWizardConnectionStatus::CONNECTION_LOST:
-            {
-                _lcd.printScrollLeft(0, "WiFi connection lost");
-                break;
-            }
-            case NetWizardConnectionStatus::NOT_FOUND:
-            default:
-            {
-                _lcd.printScrollLeft(0, "WiFi connection not found");
-                break;
-            }
-            } });
+	switch (status)
+	{
+	case NetWizardConnectionStatus::DISCONNECTED:
+		lcd.clearRow(0);
+		lcd.clearRow(1);
 
-        onPortalState([&](NetWizardPortalState state) {
-            
-        });
-        break;
-    }
-    /* --------------------------------------------------------- */
-    case WiFiMode::MANUAL:
-    default:
-    {
-        WiFi.mode(WIFI_STA);
-        WiFi.begin(_ssid.c_str(), _password.c_str());
+		lcd.printCentered(0, "Koneksi WiFi");
+		lcd.printCentered(1, "terputus.");
+		break;
 
-        Serial.print(F("[NetMan] Connecting to "));
-        Serial.print(_ssid);
-        Serial.print(F("..."));
+	case NetWizardConnectionStatus::CONNECTING:
+		lcd.clearRow(0);
+		lcd.clearRow(1);
 
-        const unsigned long timeout = 30'000; // 30 s
-        unsigned long t0 = millis();
-        while (WiFi.status() != WL_CONNECTED && millis() - t0 < timeout)
-        {
-            delay(250);
-            Serial.print('.');
-        }
-        Serial.println();
+		lcd.printCentered(0, "WiFi sedang");
+		lcd.printCentered(1, "menghubungkan.");
+		break;
 
-        if (WiFi.status() != WL_CONNECTED)
-        {
-            Serial.println(F("[NetMan] WiFi connection timed out"));
-            // Optional: fall back to AP / wizard mode or reset.
-            ESP.restart();
-            return;
-        }
-        break;
-    }
-    }
+	case NetWizardConnectionStatus::CONNECTED:
+		lcd.clearRow(0);
+		lcd.clearRow(1);
+
+		lcd.printCentered(0, "WiFi berhasil");
+		lcd.printCentered(1, "terhubung.");
+		break;
+
+	case NetWizardConnectionStatus::CONNECTION_FAILED:
+		lcd.clearRow(0);
+		lcd.clearRow(1);
+
+		lcd.printCentered(0, "Koneksi WiFi gagal.");
+		break;
+
+	case NetWizardConnectionStatus::CONNECTION_LOST:
+		lcd.clearRow(0);
+		lcd.clearRow(1);
+
+		lcd.printCentered(0, "Koneksi WiFi hilang.");
+		break;
+
+	case NetWizardConnectionStatus::NOT_FOUND:
+	default:
+		lcd.clearRow(0);
+		lcd.clearRow(1);
+
+		lcd.printCentered(0, "Koneksi WiFi");
+		lcd.printCentered(1, "tak ditemukan.");
+		break;
+	}
 }
 
-void NetMan::_connectionStatusCallback(NetWizardConnectionStatus status)
+void NetMan::handlePortalChanges(NetWizardPortalState state, LCD &lcd)
 {
-    switch (status)
-    {
-    case NetWizardConnectionStatus::DISCONNECTED:
-    {
+	switch (state)
+	{
+	case NetWizardPortalState::IDLE:
+		lcd.clearRow(2);
+		lcd.clearRow(3);
 
-        break;
-    }
+		lcd.printCentered(2, "Web Portal siap");
+		lcd.printCentered(3, "untuk dimulai.");
+		break;
 
-    default:
-        break;
-    }
+	case NetWizardPortalState::CONNECTING_WIFI:
+		lcd.clearRow(2);
+		lcd.clearRow(3);
+
+		lcd.printCentered(2, "Web Portal mencoba");
+		lcd.printCentered(3, "terhubung ke WiFi.");
+		break;
+
+	case NetWizardPortalState::WAITING_FOR_CONNECTION:
+		lcd.clearRow(2);
+		lcd.clearRow(3);
+
+		lcd.printCentered(2, "Web Portal menunggu");
+		lcd.printCentered(3, "koneksi client.");
+		break;
+
+	case NetWizardPortalState::SUCCESS:
+		lcd.clearRow(2);
+		lcd.clearRow(3);
+
+		lcd.printCentered(2, "Web Portal-client");
+		lcd.printCentered(3, "berhasil terhubung.");
+		break;
+
+	case NetWizardPortalState::FAILED:
+		lcd.clearRow(2);
+		lcd.clearRow(3);
+
+		lcd.printCentered(2, "Web Portal-client");
+		lcd.printCentered(3, "gagal terhubung.");
+		break;
+
+	case NetWizardPortalState::TIMEOUT:
+	default:
+		lcd.clearRow(2);
+		lcd.clearRow(3);
+
+		lcd.printCentered(2, "Web Portal mencapai");
+		lcd.printCentered(3, "batas waktu.");
+		break;
+	}
 }
