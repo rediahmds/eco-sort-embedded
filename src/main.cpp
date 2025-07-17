@@ -43,15 +43,15 @@ void setup()
 	Serial.begin(9600);
 	lcd.initialize();
 
-	netMan.autoConnect(AP_NAME, "");
-	
-	// Connect to specific AP without opening a portal, input WiFi auth manually
-	// netMan.connect("AP", "Pass");
-
 	netMan.onConnectionStatus([&](NetWizardConnectionStatus status)
 							  { NetMan::handleConnectionChanges(status, lcd); });
 	netMan.onPortalState([&](NetWizardPortalState state)
 						 { NetMan::handlePortalChanges(state, lcd); });
+
+	netMan.autoConnect(AP_NAME, "");
+
+	// Connect to specific AP without opening a portal, input WiFi auth manually
+	// netMan.connect("AP", "Pass");
 
 	ElegantOTA.setAuth(OTA_USERNAME, OTA_PASSWORD);
 	ElegantOTA.begin(&server);
