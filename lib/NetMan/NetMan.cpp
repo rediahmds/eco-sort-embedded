@@ -1,6 +1,6 @@
 #include "NetMan.h"
 
-void NetMan::handleConnectionChanges(NetWizardConnectionStatus status, LCD &lcd)
+void NetMan::handleConnectionChanges(NetWizardConnectionStatus status, LCD &lcd, int delayms)
 {
 	switch (status)
 	{
@@ -51,9 +51,11 @@ void NetMan::handleConnectionChanges(NetWizardConnectionStatus status, LCD &lcd)
 		lcd.printCentered(1, "tak ditemukan.");
 		break;
 	}
+
+	delay(delayms);
 }
 
-void NetMan::handlePortalChanges(NetWizardPortalState state, LCD &lcd)
+void NetMan::handlePortalChanges(NetWizardPortalState state, LCD &lcd, int delayms)
 {
 	switch (state)
 	{
@@ -106,4 +108,6 @@ void NetMan::handlePortalChanges(NetWizardPortalState state, LCD &lcd)
 		lcd.printCentered(3, "batas waktu.");
 		break;
 	}
+
+	delay(delayms);
 }

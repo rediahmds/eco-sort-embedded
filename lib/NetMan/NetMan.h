@@ -11,8 +11,8 @@
 class NetMan
 {
 public:
-    static void handleConnectionChanges(NetWizardConnectionStatus status, LCD &lcd);
-    static void handlePortalChanges(NetWizardPortalState state, LCD &lcd);
+    static void handleConnectionChanges(NetWizardConnectionStatus status, LCD &lcd, int delayms = 500);
+    static void handlePortalChanges(NetWizardPortalState state, LCD &lcd, int delayms = 500);
 
     NetMan();
 };
