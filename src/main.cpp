@@ -28,7 +28,7 @@ static MQ2 methaneSensor(SENSOR_MQ2_PIN);
 static LCD lcd(LCD_ADDRESS, LCD_COLUMNS, LCD_ROWS);
 static ServoPositioner servo;
 
-const unsigned long blynkInterval = 50'000;
+const unsigned long blynkInterval = 60'000;
 
 int deg = 0;
 int methaneADC = 0;
@@ -47,7 +47,6 @@ void setup()
 							  { NetMan::handleConnectionChanges(status, lcd); });
 	netMan.onPortalState([&](NetWizardPortalState state)
 						 { NetMan::handlePortalChanges(state, lcd); });
-
 	netMan.autoConnect(AP_NAME, "");
 
 	// Connect to specific AP without opening a portal, input WiFi auth manually
@@ -62,7 +61,9 @@ void setup()
 	timer.setInterval(blynkInterval, sendSensorData);
 
 	lcd.clear();
+	
 	servo.attach(SERVO_PIN);
+	servo.toInitialPosition();
 }
 
 void loop()
@@ -101,11 +102,7 @@ BLYNK_CONNECTED()
 	const bool isServoAttached = servo.attached();
 	if (isServoAttached)
 	{
-		Blynk.virtualWrite(V7, "Attached");
-	}
-	else
-	{
-		Blynk.virtualWrite(V7, "Not Attached");
+		Blynk.virtualWrite(V7, "ready");
 	}
 }
 
@@ -113,20 +110,25 @@ BLYNK_WRITE(V0)
 {
 	inferenceResult = param.asString();
 
+	Blynk.virtualWrite(V7, "busy");
 	if (inferenceResult == "organic")
 	{
 		lcd.printMessageAt(0, 9, "Organic");
 		servo.tiltToOrganincBin();
-		delay(300);
 	}
 	else
 	{
 		lcd.printMessageAt(0, 9, "Non-organic");
 		servo.tiltToAnorganicBin();
-		delay(300);
 	}
+	delay(3000);
 
 	servo.toInitialPosition();
+	delay(300);
+	Blynk.virtualWrite(V7, "ready");
+
+	Blynk.virtualWrite(V0, "--");
+	lcd.printMessageAt(0, 9, "--");
 }
 
 BLYNK_WRITE(V1)
