@@ -61,7 +61,7 @@ void setup()
 	timer.setInterval(blynkInterval, sendSensorData);
 
 	lcd.clear();
-	
+
 	servo.attach(SERVO_PIN);
 	servo.toInitialPosition();
 }
@@ -85,8 +85,8 @@ void loop()
 	lcd.clearRow(3);
 	binLevelNonOrganic = anorganicWasteBin.readLevelPercentage();
 	binLevelOrganic = organicWasteBin.readLevelPercentage();
-	lcd.printMessageAt(0, 2, "O: " + String(binLevelOrganic) + "%");
-	lcd.printMessageAt(0, 3, "A: " + String(binLevelNonOrganic) + "%");
+	lcd.printMessageAt(0, 2, "O: " + String(round(binLevelOrganic)) + "%");
+	lcd.printMessageAt(0, 3, "A: " + String(round(binLevelNonOrganic)) + "%");
 
 	delay(1000);
 }
@@ -135,7 +135,7 @@ BLYNK_WRITE(V1)
 {
 	deg = param.asInt();
 	servo.write(deg);
-	Serial.println("[BLYNK] V2 value changed");
+	Serial.println("[BLYNK] Servo is tilting..");
 }
 
 BLYNK_WRITE(V8)
