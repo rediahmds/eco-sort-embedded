@@ -2,8 +2,8 @@
 
 #define SERVO_PIN 13
 #define INITIAL_POSITION 90
-#define DEFAULT_DEGREE_ORGANIC 45
-#define DEFAULT_DEGREE_ANORGANIC 135
+#define DEFAULT_DEGREE_ORGANIC 5
+#define DEFAULT_DEGREE_ANORGANIC 175
 
 class ServoPositioner : public Servo
 {
