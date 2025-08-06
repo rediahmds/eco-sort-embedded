@@ -111,14 +111,14 @@ BLYNK_WRITE(V0)
 	inferenceResult = param.asString();
 
 	Blynk.virtualWrite(V7, "busy");
-	if (inferenceResult == "organic")
+	if (inferenceResult == "Organik")
 	{
-		lcd.printMessageAt(0, 9, "Organic");
+		lcd.printMessageAt(0, 9, inferenceResult);
 		servo.tiltToOrganincBin();
 	}
 	else
 	{
-		lcd.printMessageAt(0, 9, "Non-organic");
+		lcd.printMessageAt(0, 9, "Daur ulang");
 		servo.tiltToAnorganicBin();
 	}
 	delay(3000);
