@@ -28,7 +28,7 @@ static MQ2 methaneSensor(SENSOR_MQ2_PIN);
 static LCD lcd(LCD_ADDRESS, LCD_COLUMNS, LCD_ROWS);
 static ServoPositioner servo;
 
-const unsigned long blynkInterval = 60'000;
+const unsigned long blynkInterval = 5'000;
 
 int deg = 0;
 int methaneADC = 0;
