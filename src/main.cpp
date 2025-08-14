@@ -78,15 +78,14 @@ void loop()
 	lcd.printMessageAt(0, 0, "Result: " + inferenceResult);
 
 	lcd.clearRow(1);
-	methaneADC = methaneSensor.readCH4();
-	lcd.printMessageAt(0, 1, "CH4: " + String(methaneADC));
 
 	lcd.clearRow(2);
 	lcd.clearRow(3);
 	binLevelNonOrganic = anorganicWasteBin.readLevelPercentage();
 	binLevelOrganic = organicWasteBin.readLevelPercentage();
-	lcd.printMessageAt(0, 2, "O: " + String(round(binLevelOrganic)) + "%");
-	lcd.printMessageAt(0, 3, "A: " + String(round(binLevelNonOrganic)) + "%");
+	lcd.printCentered(1, "SISA RUANG");
+	lcd.printMessageAt(0, 3, "Recyclable: " + String(round(binLevelNonOrganic)) + "%");
+	lcd.printMessageAt(0, 2, "Organic   : " + String(round(binLevelOrganic)) + "%");
 
 	delay(1000);
 }
@@ -154,6 +153,9 @@ void sendSensorData()
 	Blynk.virtualWrite(V3, binLevelNonOrganic);
 
 	Blynk.virtualWrite(V4, methaneADC);
+
+	Blynk.virtualWrite(V9, organicWasteBin.ping_cm());
+	Blynk.virtualWrite(V10, anorganicWasteBin.ping_cm());
 
 	Serial.println("Sensor data sent successfully!");
 }
