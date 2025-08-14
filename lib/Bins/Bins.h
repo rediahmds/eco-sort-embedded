@@ -9,8 +9,7 @@ const int SENSOR_ECHO_ANORGANIC_PIN = 33;
 const int SENSOR_TRIG_ORGANIC_PIN = 5;
 const int SENSOR_ECHO_ORGANIC_PIN = 18;
 
-const int MAX_DISTANCE = 100; // centimeters
-const int BIN_HEIGHT = 20;    // centimeters
+const int MAX_DISTANCE = 20; // centimeters
 
 class Bins : public NewPing
 {
@@ -20,7 +19,7 @@ public:
     float readLevelPercentage();
 
 private:
-    const int BIN_HEIGHT = 50; // in cm
+    const int BIN_HEIGHT = MAX_DISTANCE; // in cm
     float calculatePercentage(int distance);
 };
 
