@@ -4,16 +4,14 @@ Bins::Bins(int triggerPin, int echoPin, int maxDistance) : NewPing(triggerPin, e
 {
 }
 
-float Bins::calculatePercentage(int distance)
+float Bins::calculatePercentage(int heightReading)
 {
-    const float filledHeight = BIN_HEIGHT - distance;
-    const float percentage = (filledHeight / BIN_HEIGHT) * 100.0f;
-    return percentage;
+	return (heightReading * 100.0f) / BIN_HEIGHT;
 }
 
-float Bins::readLevelPercentage()
+int Bins::readFilledHeightCm()
 {
-    const int distance = ping_cm();
-    const float percentage = calculatePercentage(distance);
-    return percentage;
+	const int distance = ping_cm();
+	const int filledheight = BIN_HEIGHT - distance;
+	return filledheight;
 }

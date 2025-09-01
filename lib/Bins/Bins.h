@@ -14,13 +14,13 @@ const int MAX_DISTANCE = 20; // centimeters
 class Bins : public NewPing
 {
 public:
-    Bins(int triggerPin, int echoPin, int maxDistance = MAX_DISTANCE);
+	Bins(int triggerPin, int echoPin, int maxDistance = MAX_DISTANCE);
 
-    float readLevelPercentage();
+	int readFilledHeightCm();
+	float calculatePercentage(int distance);
 
 private:
-    const int BIN_HEIGHT = MAX_DISTANCE; // in cm
-    float calculatePercentage(int distance);
+	const int BIN_HEIGHT = MAX_DISTANCE; // in cm
 };
 
 #endif
