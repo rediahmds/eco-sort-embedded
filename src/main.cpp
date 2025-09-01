@@ -8,7 +8,6 @@
 #include <NetWizard.h>
 #include <NetMan.h>
 
-#include <MQ2.h>
 #include <Bins.h> // ultrasonic
 #include <Lcd.h>
 #include <ServoPositioner.h>
@@ -23,7 +22,6 @@ static Bins organicWasteBin(
 static Bins anorganicWasteBin(
 	SENSOR_TRIG_ANORGANIC_PIN,
 	SENSOR_ECHO_ANORGANIC_PIN);
-static MQ2 methaneSensor(SENSOR_MQ2_PIN);
 
 static LCD lcd(LCD_ADDRESS, LCD_COLUMNS, LCD_ROWS);
 static ServoPositioner servo;
@@ -31,9 +29,12 @@ static ServoPositioner servo;
 const unsigned long blynkInterval = 5'000;
 
 int deg = 0;
-int methaneADC = 0;
-float binLevelNonOrganic = 0;
+
+float binLevelRecyclable = 0;
 float binLevelOrganic = 0;
+float recyclablePercentage = 0;
+float organicPercentage = 0;
+
 String inferenceResult = "--";
 
 void sendSensorData();
@@ -47,8 +48,8 @@ void setup()
 							  { NetMan::handleConnectionChanges(status, lcd); });
 	netMan.onPortalState([&](NetWizardPortalState state)
 						 { NetMan::handlePortalChanges(state, lcd); });
-	netMan.autoConnect(AP_NAME, "");
 
+	netMan.autoConnect(AP_NAME, "");
 	// Connect to specific AP without opening a portal, input WiFi auth manually
 	// netMan.connect("AP", "Pass");
 
@@ -78,14 +79,18 @@ void loop()
 	lcd.printMessageAt(0, 0, "Result: " + inferenceResult);
 
 	lcd.clearRow(1);
-
 	lcd.clearRow(2);
 	lcd.clearRow(3);
-	binLevelNonOrganic = anorganicWasteBin.readLevelPercentage();
-	binLevelOrganic = organicWasteBin.readLevelPercentage();
-	lcd.printCentered(1, "SISA RUANG");
-	lcd.printMessageAt(0, 3, "Recyclable: " + String(round(binLevelNonOrganic)) + "%");
-	lcd.printMessageAt(0, 2, "Organic   : " + String(round(binLevelOrganic)) + "%");
+
+	binLevelRecyclable = anorganicWasteBin.readFilledHeightCm();
+	recyclablePercentage = anorganicWasteBin.calculatePercentage(binLevelRecyclable);
+
+	binLevelOrganic = organicWasteBin.readFilledHeightCm();
+	organicPercentage = organicWasteBin.calculatePercentage(binLevelOrganic);
+
+	lcd.printCentered(1, "[PERSENTASE TERISI]");
+	lcd.printMessageAt(0, 2, "Organik   : " + String(organicPercentage) + "%");
+	lcd.printMessageAt(0, 3, "Daur ulang: " + String(recyclablePercentage) + "%");
 
 	delay(1000);
 }
@@ -105,6 +110,7 @@ BLYNK_CONNECTED()
 	}
 }
 
+// --- Inference result event handler
 BLYNK_WRITE(V0)
 {
 	inferenceResult = param.asString();
@@ -115,10 +121,14 @@ BLYNK_WRITE(V0)
 		lcd.printMessageAt(0, 9, inferenceResult);
 		servo.tiltToOrganincBin();
 	}
-	else
+	else if (inferenceResult == "Daur ulang")
 	{
 		lcd.printMessageAt(0, 9, "Daur ulang");
 		servo.tiltToAnorganicBin();
+	}
+	else
+	{
+		return;
 	}
 	delay(3000);
 
@@ -130,6 +140,7 @@ BLYNK_WRITE(V0)
 	lcd.printMessageAt(0, 9, "--");
 }
 
+// --- Servo slide event handler
 BLYNK_WRITE(V1)
 {
 	deg = param.asInt();
@@ -137,6 +148,7 @@ BLYNK_WRITE(V1)
 	Serial.println("[BLYNK] Servo is tilting..");
 }
 
+// --- Button reset wifi event handler
 BLYNK_WRITE(V8)
 {
 	const bool isResetPressed = param.asInt();
@@ -149,13 +161,45 @@ BLYNK_WRITE(V8)
 
 void sendSensorData()
 {
-	Blynk.virtualWrite(V2, binLevelOrganic);
-	Blynk.virtualWrite(V3, binLevelNonOrganic);
-
-	Blynk.virtualWrite(V4, methaneADC);
+	Blynk.virtualWrite(V2, organicPercentage);
+	Blynk.virtualWrite(V3, recyclablePercentage);
 
 	Blynk.virtualWrite(V9, organicWasteBin.ping_cm());
 	Blynk.virtualWrite(V10, anorganicWasteBin.ping_cm());
 
 	Serial.println("Sensor data sent successfully!");
+}
+
+BLYNK_WRITE(V11)
+{
+	const bool isOpenCommand = param.asInt();
+
+	if (isOpenCommand)
+	{
+		Blynk.virtualWrite(V7, "busy");
+		servo.tiltToAnorganicBin();
+	}
+	else
+	{
+		servo.toInitialPosition();
+		Blynk.virtualWrite(V7, "ready");
+	}
+	delay(400);
+}
+
+BLYNK_WRITE(V12)
+{
+	const bool isOpenCommand = param.asInt();
+
+	if (isOpenCommand)
+	{
+		Blynk.virtualWrite(V7, "busy");
+		servo.tiltToOrganincBin();
+	}
+	else
+	{
+		servo.toInitialPosition();
+		Blynk.virtualWrite(V7, "ready");
+	}
+	delay(400);
 }
